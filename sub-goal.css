@@ -11,20 +11,22 @@ body {
   padding: 20px;
 }
 
+/* Cercle contenant l'icône + progress ring */
 .circle-wrapper {
   position: relative;
-  width: 110px;
-  height: 110px;
+  width: 130px;
+  height: 130px;
   overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Icône du cœur */
 .center-icon {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 57%;
+  left: 43%;
   width: 70px;
   height: 70px;
   transform: translate(-50%, -50%);
@@ -33,20 +35,22 @@ body {
   filter: drop-shadow(0 0 6px #ff69b4) drop-shadow(0 0 12px #ff69b4);
 }
 
+/* Le cercle SVG autour de l'image */
 .progress-ring {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 110px;
-  height: 110px;
-  transform: translate(-50%, -50%) rotate(-90deg);
+  top: 0;
+  left: 0;
+  width: 130px;
+  height: 130px;
+  transform: rotate(-90deg);
   overflow: visible;
   z-index: 0;
 }
 
+/* Attributs des cercles SVG */
 .progress-ring circle {
   fill: none;
-  stroke-width: 8;
+  stroke-width: 10;
 }
 
 .bg {
@@ -56,20 +60,23 @@ body {
 .progress {
   stroke: #ff69b4;
   stroke-linecap: round;
-  stroke-dasharray: 314;
+  stroke-dasharray: 314; /* 2πr */
   stroke-dashoffset: 314;
   transition: stroke-dashoffset 0.5s ease;
   filter: drop-shadow(0 0 8px #ff69b4) drop-shadow(0 0 16px #ff69b4);
 }
 
+/* Texte titre + montant */
 .label {
   text-align: center;
   font-weight: bold;
-  margin-top: 15px;
+  margin-top: 10px;
+  margin-left: -17px; /* décalage vers la gauche */
   font-size: 20px;
   line-height: 1.5;
 }
 
+/* Glow du texte en rose */
 .glow-text {
   color: #ff8bcf;
   text-shadow:

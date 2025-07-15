@@ -13,35 +13,57 @@ function updateProgress() {
     `Sub Goal<br>${currentSubs} / ${SUB_GOAL_AMOUNT}`;
 }
 
-// Pour StreamElements, les données de subs viennent directement des événements
-// Cette fonction est gardée pour une future intégration API si nécessaire
-function initializeSubs() {
-  // Les subs seront mis à jour via onWidgetLoad et onEventReceived
-  console.log('Widget initialisé - en attente des données StreamElements');
-}
+// StreamElements - Récupération initiale des données
+window.addEventListener('onWidgetLoad', function (obj) {
+  // Récupère les données de la session
+  const data = obj.detail.session.data;
+  
+  // Différentes façons de récupérer le nombre de subs selon la config StreamElements
+  if (data['subscriber-session'] && data['subscriber-session']['count']) {
+    currentSubs = data['subscriber-session']['count'];
+  } else if (data['subscriber-total'] && data['subscriber-total']['count']) {
+    currentSubs = data['subscriber-total']['count'];
+  } else if (data['subscriber-month'] && data['subscriber-month']['count']) {
+    currentSubs = data['subscriber-month']['count'];
+  }
+  
+  console.log('Subs actuels au chargement:', currentSubs);
+  updateProgress();
+});
 
+// StreamElements - Mise à jour en temps réel
 window.addEventListener('onEventReceived', function (obj) {
+  const listener = obj.detail.listener;
   const event = obj.detail.event;
-  if (event && (event.type === 'subscriber' || event.type === 'gift')) {
-    currentSubs += 1;
+  
+  // Vérification du type d'événement
+  if (listener === 'subscriber-latest' || 
+      (event && event.type === 'subscriber') ||
+      (event && event.type === 'gift' && event.gifted)) {
+    
+    // Incrémentation du compteur
+    if (event.amount) {
+      currentSubs += event.amount; // Pour les gift subs multiples
+    } else {
+      currentSubs += 1; // Pour un sub normal
+    }
+    
+    console.log('Nouveau sub! Total:', currentSubs);
     updateProgress();
   }
 });
 
-// Ajout du listener pour récupérer les données initiales depuis StreamElements
-window.addEventListener('onWidgetLoad', function (obj) {
-  const data = obj.detail.session.data;
-  const fieldData = obj.detail.fieldData;
+// StreamElements - Mise à jour de session
+window.addEventListener('onSessionUpdate', function (obj) {
+  const data = obj.detail.session;
   
-  // Récupération du nombre de subs actuel
-  if (data && data["subscriber-session"] && data["subscriber-session"]["count"]) {
-    currentSubs = data["subscriber-session"]["count"];
+  // Mise à jour avec les données de session
+  if (data['subscriber-session'] && data['subscriber-session']['count']) {
+    currentSubs = data['subscriber-session']['count'];
+    console.log('Mise à jour session - Subs:', currentSubs);
+    updateProgress();
   }
-  
-  updateProgress();
-  console.log('Subs actuels:', currentSubs);
 });
 
 // Initialisation
 updateProgress();
-initializeSubs();
