@@ -6,36 +6,59 @@ function updateProgress() {
   const circle = document.getElementById("progress-ring");
   const radius = circle.r.baseVal.value;
   const circumference = 2 * Math.PI * radius;
-  circle.style.strokeDashoffset = circumference - percent * circumference;
+  const offset = circumference - percent * circumference;
+  circle.style.strokeDashoffset = offset;
 
-  document.getElementById("goal-label").innerHTML =
+  document.getElementById('goal-label').innerHTML =
     `VIEWERS<br>${currentViewers} / ${VIEWER_GOAL}`;
 }
 
-function getViewers(session) {
-  if (!session) return 0;
+// StreamElements - Récupération initiale des données
+window.addEventListener('onWidgetLoad', function (obj) {
+  // Récupère les données de la session
+  const data = obj.detail.session.data;
   
-  if (session.viewers) {
-    if (typeof session.viewers === "number") return session.viewers;
-    if (session.viewers.twitch) return session.viewers.twitch;
-    if (session.viewers.current) return session.viewers.current;
+  // Vérification des viewers dans la structure StreamElements
+  if (data && data['channel-viewers'] && data['channel-viewers']['count']) {
+    currentViewers = data['channel-viewers']['count'];
+  } else if (data && data['viewer-count']) {
+    currentViewers = data['viewer-count'];
+  } else if (obj.detail.channel && obj.detail.channel.viewers) {
+    currentViewers = obj.detail.channel.viewers;
   }
-  if (session.channel && session.channel.viewers) return session.channel.viewers;
-  return 0;
-}
-
-window.addEventListener("onWidgetLoad", function(obj) {
-  const session = obj.detail.session;
-  currentViewers = getViewers(session);
+  
+  console.log('Viewers actuels au chargement:', currentViewers);
   updateProgress();
-  console.log("WidgetLoad – viewers:", currentViewers);
 });
 
-window.addEventListener("onSessionUpdate", function(obj) {
-  const session = obj.detail.session;
-  currentViewers = getViewers(session);
-  updateProgress();
-  console.log("SessionUpdate – viewers:", currentViewers);
+// StreamElements - Mise à jour en temps réel
+window.addEventListener('onEventReceived', function (obj) {
+  const event = obj.detail.event;
+  
+  // Vérification pour mise à jour des viewers
+  if (event && event.type === 'viewerCount') {
+    currentViewers = event.count || event.viewers || 0;
+    console.log('Mise à jour viewers:', currentViewers);
+    updateProgress();
+  }
 });
 
+// StreamElements - Mise à jour de session
+window.addEventListener('onSessionUpdate', function (obj) {
+  const data = obj.detail.session;
+  
+  // Mise à jour avec les données de session
+  if (data && data['channel-viewers'] && data['channel-viewers']['count']) {
+    currentViewers = data['channel-viewers']['count'];
+  } else if (data && data['viewer-count']) {
+    currentViewers = data['viewer-count'];
+  } else if (data && data.channel && data.channel.viewers) {
+    currentViewers = data.channel.viewers;
+  }
+  
+  console.log('Mise à jour session - Viewers:', currentViewers);
+  updateProgress();
+});
+
+// Initialisation
 updateProgress();
