@@ -9,7 +9,7 @@ function updateProgress() {
   circle.style.strokeDashoffset = circumference - percent * circumference;
 
   document.getElementById("goal-label").innerHTML =
-    `VIEWERS COUNT<br>${currentViewers} / ${VIEWER_GOAL}`;
+    `VIEWERS<br>${currentViewers} / ${VIEWER_GOAL}`;
 }
 
 function getViewers(session) {
