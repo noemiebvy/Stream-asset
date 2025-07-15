@@ -13,15 +13,11 @@ function updateProgress() {
     `Sub Goal<br>${currentSubs} / ${SUB_GOAL_AMOUNT}`;
 }
 
-async function fetchCurrentSubs() {
-  try {
-    const response = await fetch('https://api.streamelements.com/kappa/v2/channels/noemiee/subscribers');
-    const data = await response.json();
-    currentSubs = data.count || 0;
-    updateProgress();
-  } catch (error) {
-    console.error('Erreur lors de la récupération des subs:', error);
-  }
+// Pour StreamElements, les données de subs viennent directement des événements
+// Cette fonction est gardée pour une future intégration API si nécessaire
+function initializeSubs() {
+  // Les subs seront mis à jour via onWidgetLoad et onEventReceived
+  console.log('Widget initialisé - en attente des données StreamElements');
 }
 
 window.addEventListener('onEventReceived', function (obj) {
@@ -32,6 +28,20 @@ window.addEventListener('onEventReceived', function (obj) {
   }
 });
 
+// Ajout du listener pour récupérer les données initiales depuis StreamElements
+window.addEventListener('onWidgetLoad', function (obj) {
+  const data = obj.detail.session.data;
+  const fieldData = obj.detail.fieldData;
+  
+  // Récupération du nombre de subs actuel
+  if (data && data["subscriber-session"] && data["subscriber-session"]["count"]) {
+    currentSubs = data["subscriber-session"]["count"];
+  }
+  
+  updateProgress();
+  console.log('Subs actuels:', currentSubs);
+});
+
+// Initialisation
 updateProgress();
-fetchCurrentSubs();
-setInterval(fetchCurrentSubs, 30000);
+initializeSubs();
