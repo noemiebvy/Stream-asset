@@ -1,0 +1,81 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+}
+
+.goal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.circle-wrapper {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-icon {
+  position: absolute;
+  top: 57%;
+  left: 43%;
+  width: 70px;
+  height: 70px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  image-rendering: auto;
+  filter: drop-shadow(0 0 6px #ff69b4) drop-shadow(0 0 12px #ff69b4);
+}
+
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 110px;
+  height: 110px;
+  transform: rotate(-90deg);
+  overflow: visible;
+  z-index: 0;
+}
+
+.progress-ring circle {
+  fill: none;
+  stroke-width: 8;
+}
+
+.bg {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+.progress {
+  stroke: #ff69b4;
+  stroke-linecap: round;
+  stroke-dasharray: 314;
+  stroke-dashoffset: 314;
+  transition: stroke-dashoffset 0.5s ease;
+  filter: drop-shadow(0 0 8px #ff69b4) drop-shadow(0 0 16px #ff69b4);
+}
+
+.label {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-left: -17px;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.glow-text {
+  color: #ff8bcf;
+  text-shadow:
+    0 0 4px #ff8bcf,
+    0 0 8px #ff8bcf,
+    0 0 12px #ff8bcf,
+    0 0 20px #ff8bcf;
+}
