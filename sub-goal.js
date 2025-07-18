@@ -1,7 +1,13 @@
-const SUB_GOAL_AMOUNT = 100;
+let SUB_GOAL_AMOUNT = 100;
+const GOAL_INCREMENT = 20; // Augmente de 20 à chaque fois que le goal est atteint
 let currentSubs = 0;
 
 function updateProgress() {
+  // Auto-increase du goal si on l'a dépassé
+  while (currentSubs >= SUB_GOAL_AMOUNT) {
+    SUB_GOAL_AMOUNT += GOAL_INCREMENT;
+  }
+  
   const percent = Math.min(1, currentSubs / SUB_GOAL_AMOUNT);
   const circle = document.getElementById("progress-ring-sub");
   const radius = circle.r.baseVal.value;
@@ -36,19 +42,29 @@ window.addEventListener('onEventReceived', function (obj) {
   const listener = obj.detail.listener;
   const event = obj.detail.event;
   
+  console.log('Event reçu:', listener, event);
+  
   // Vérification du type d'événement
   if (listener === 'subscriber-latest' || 
       (event && event.type === 'subscriber') ||
-      (event && event.type === 'gift' && event.gifted)) {
+      (event && event.type === 'gift' && event.gifted) ||
+      (event && event.type === 'subgift')) {
     
-    // Incrémentation du compteur
-    if (event.amount) {
-      currentSubs += event.amount; // Pour les gift subs multiples
-    } else {
-      currentSubs += 1; // Pour un sub normal
+    // Pour les gift subs, on ne traite que l'événement principal, pas les individuels
+    if (event.bulkGifted && !event.isCommunityGift) {
+      // C'est un gift sub individuel dans un bulk, on l'ignore pour éviter de compter deux fois
+      return;
     }
     
-    console.log('Nouveau sub! Total:', currentSubs);
+    // Incrémentation du compteur
+    if (event.amount && event.amount > 1) {
+      currentSubs += event.amount; // Pour les gift subs multiples
+      console.log(`Bulk gift subs! +${event.amount} Total:`, currentSubs);
+    } else {
+      currentSubs += 1; // Pour un sub normal ou gift sub unique
+      console.log('Nouveau sub! Total:', currentSubs);
+    }
+    
     updateProgress();
   }
 });
@@ -58,9 +74,15 @@ window.addEventListener('onSessionUpdate', function (obj) {
   const data = obj.detail.session;
   
   // Mise à jour avec les données de session
-  if (data['subscriber-session'] && data['subscriber-session']['count']) {
-    currentSubs = data['subscriber-session']['count'];
-    console.log('Mise à jour session - Subs:', currentSubs);
+  // On utilise le total au lieu de la session pour éviter le reset
+  if (data['subscriber-total'] && data['subscriber-total']['count']) {
+    currentSubs = data['subscriber-total']['count'];
+    console.log('Mise à jour session - Subs total:', currentSubs);
+    updateProgress();
+  } else if (data['subscriber-month'] && data['subscriber-month']['count']) {
+    // Fallback sur le compteur mensuel si le total n'est pas disponible
+    currentSubs = data['subscriber-month']['count'];
+    console.log('Mise à jour session - Subs mois:', currentSubs);
     updateProgress();
   }
 });
